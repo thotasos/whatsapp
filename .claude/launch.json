@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "whatsapp-daemon",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["daemon.js"],
+      "port": 3721
+    }
+  ]
+}
