@@ -158,8 +158,10 @@ program.command('messages').description('Show recent messages')
 const groups = program.command('groups').description('Manage group aliases');
 groups.command('list', { isDefault: true }).description('List group aliases').action(async () => {
   requireDaemon();
-  const { data } = await api().get('/groups');
-  printTable(data, [{ key: 'alias', label: 'ALIAS' }, { key: 'jid', label: 'JID' }, { key: 'name', label: 'NAME' }]);
+  try {
+    const { data } = await api().get('/groups');
+    printTable(data, [{ key: 'alias', label: 'ALIAS' }, { key: 'jid', label: 'JID' }, { key: 'name', label: 'NAME' }]);
+  } catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
 });
 groups.command('add <alias> <jid>').description('Add a group alias').action(async (alias, jid) => {
   requireDaemon();
@@ -168,16 +170,18 @@ groups.command('add <alias> <jid>').description('Add a group alias').action(asyn
 });
 groups.command('remove <alias>').description('Remove a group alias').action(async (alias) => {
   requireDaemon();
-  await api().delete(`/groups/${alias}`);
-  console.log(`✓ Group "${alias}" removed`);
+  try { await api().delete(`/groups/${alias}`); console.log(`✓ Group "${alias}" removed`); }
+  catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
 });
 
 // --- wa webhooks ---
 const hooks = program.command('webhooks').description('Manage webhooks');
 hooks.command('list', { isDefault: true }).description('List webhooks').action(async () => {
   requireDaemon();
-  const { data } = await api().get('/webhooks');
-  printTable(data, [{ key: 'id', label: 'ID' }, { key: 'url', label: 'URL' }, { key: 'events', label: 'EVENTS' }]);
+  try {
+    const { data } = await api().get('/webhooks');
+    printTable(data, [{ key: 'id', label: 'ID' }, { key: 'url', label: 'URL' }, { key: 'events', label: 'EVENTS' }]);
+  } catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
 });
 hooks.command('add <url>').description('Register a webhook')
   .option('--events <list>', 'Comma-separated events', 'message')
@@ -189,8 +193,8 @@ hooks.command('add <url>').description('Register a webhook')
   });
 hooks.command('remove <id>').description('Remove a webhook').action(async (id) => {
   requireDaemon();
-  await api().delete(`/webhooks/${id}`);
-  console.log(`✓ Webhook ${id} removed`);
+  try { await api().delete(`/webhooks/${id}`); console.log(`✓ Webhook ${id} removed`); }
+  catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
 });
 
 // --- wa logout ---
