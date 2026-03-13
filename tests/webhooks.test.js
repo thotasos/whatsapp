@@ -59,7 +59,13 @@ test('does NOT fire "message.group" webhook for individual', (t, done) => {
   });
 });
 
-test('failed webhook POST does not throw', () => {
-  db.addWebhook('http://localhost:1', ['message']);
-  assert.doesNotThrow(() => webhooks.dispatch(INDIVIDUAL));
+test('failed webhook POST does not produce unhandled rejection', async () => {
+  db.addWebhook('http://localhost:1', ['message']); // port 1 refuses connections
+  const rejections = [];
+  const handler = (reason) => rejections.push(reason);
+  process.on('unhandledRejection', handler);
+  webhooks.dispatch(INDIVIDUAL);
+  await new Promise(r => setTimeout(r, 500));
+  process.off('unhandledRejection', handler);
+  assert.equal(rejections.length, 0, 'unhandled rejection detected — .catch may be missing');
 });
