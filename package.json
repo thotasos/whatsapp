@@ -1,0 +1,26 @@
+{
+  "name": "whatsapp-daemon",
+  "version": "1.0.0",
+  "description": "WhatsApp daemon + CLI via Baileys",
+  "main": "daemon.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node daemon.js",
+    "test": "node --test tests/db.test.js tests/webhooks.test.js tests/server.test.js"
+  },
+  "bin": {
+    "wa": "./cli.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.0",
+    "express": "^4.18.0",
+    "better-sqlite3": "^11.8.0",
+    "qrcode-terminal": "^0.12.0",
+    "axios": "^1.6.0",
+    "commander": "^12.0.0",
+    "pino": "^8.19.0"
+  },
+  "devDependencies": {
+    "supertest": "^6.3.0"
+  }
+}
