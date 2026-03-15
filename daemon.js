@@ -75,6 +75,21 @@ wa.start({
       db.close();
       setTimeout(() => process.exit(1), 200);
     }
+  },
+  onGroups: (groups) => {
+    for (const g of groups) {
+      // Generate alias from group name: "Family Group" -> "family-group"
+      const alias = g.name
+        ? g.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        : g.jid.replace('@g.us', '');
+      try {
+        db.addGroup(alias, g.jid, g.name);
+        log.info({ group: g.name, jid: g.jid }, 'group synced');
+      } catch (e) {
+        // Group already exists - that's fine
+      }
+    }
+    log.info({ count: groups.length }, 'groups synced');
   }
 }).catch((err) => {
   process.stdout.write(`error: ${err.message}\n`);

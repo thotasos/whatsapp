@@ -133,6 +133,24 @@ program.command('send-group <group> <message>').description('Send to a group (al
   catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
 });
 
+// --- wa send-media ---
+program.command('send-media <target> <file>')
+  .description('Send media to a group or phone')
+  .option('--caption <text>', 'Caption for the media')
+  .action(async (target, file, opts) => {
+    requireDaemon();
+    if (!fs.existsSync(file)) { console.error('File not found:', file); process.exit(1); }
+    try {
+      const FormData = require('form-data');
+      const form = new FormData();
+      form.append('target', target);
+      if (opts.caption) form.append('caption', opts.caption);
+      form.append('media', fs.createReadStream(file));
+      await api().post('/send-media', form, { headers: form.getHeaders() });
+      console.log('✓ Sent');
+    } catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
+  });
+
 // --- wa messages ---
 program.command('messages').description('Show recent messages')
   .option('--limit <n>', 'Number of messages', '20')
@@ -149,7 +167,8 @@ program.command('messages').description('Show recent messages')
       [...data].reverse().forEach(m => {
         const dir = m.is_from_me ? '→' : '←';
         const who = m.sender_name || m.sender_jid;
-        console.log(`[${new Date(m.timestamp).toLocaleString()}] ${dir} ${who}: ${m.text ?? '(media)'}`);
+        const content = m.text || (m.media_path ? `(media: ${m.media_path})` : '(media)');
+        console.log(`[${new Date(m.timestamp).toLocaleString()}] ${dir} ${who}: ${content}`);
       });
     } catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
   });
