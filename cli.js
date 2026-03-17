@@ -145,7 +145,7 @@ program.command('send-media <target> <file>')
       const form = new FormData();
       form.append('target', target);
       if (opts.caption) form.append('caption', opts.caption);
-      form.append('media', fs.createReadStream(file));
+      form.append('media', fs.createReadStream(file), { filename: path.basename(file) });
       await api().post('/send-media', form, { headers: form.getHeaders() });
       console.log('✓ Sent');
     } catch (e) { console.error('Error:', e.response?.data?.error || e.message); process.exit(1); }
